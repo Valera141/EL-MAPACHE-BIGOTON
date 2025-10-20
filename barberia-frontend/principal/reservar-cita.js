@@ -3,13 +3,12 @@ const API_BASE_URL = 'http://localhost:8081/api';
 
 // Variables globales
 let servicioSeleccionado = null;
-let sucursalSeleccionada = null; // <-- Nueva variable global
+let sucursalSeleccionada = null; 
 let barberoSeleccionado = null;
 let barberos = [];
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Obtener el servicio seleccionado de la URL
     const urlParams = new URLSearchParams(window.location.search);
     const servicioId = urlParams.get('servicio');
     
@@ -17,9 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarServicioSeleccionado(servicioId);
     }
     
-    // 1. Cargar sucursales al iniciar
     cargarSucursales(); 
-    
     configurarFechaMinima();
     configurarFormulario();
 });
@@ -58,10 +55,6 @@ function mostrarServicioSeleccionado() {
     document.getElementById('servicio-info').style.display = 'block';
 }
 
-// ==================================================
-// NUEVAS FUNCIONES PARA MANEJAR SUCURSALES
-// ==================================================
-
 // Cargar sucursales disponibles
 async function cargarSucursales() {
     const select = document.getElementById('sucursalSelect');
@@ -71,7 +64,7 @@ async function cargarSucursales() {
         
         const sucursales = await response.json();
         
-        select.innerHTML = '<option value="">Seleccionar sucursal</option>'; // Opción por defecto
+        select.innerHTML = '<option value="">Seleccionar sucursal</option>';
         sucursales.forEach(sucursal => {
             const option = document.createElement('option');
             option.value = sucursal.id;
@@ -79,7 +72,6 @@ async function cargarSucursales() {
             select.appendChild(option);
         });
 
-        // Añadir evento para cuando el usuario cambia de sucursal
         select.addEventListener('change', (event) => {
             const sucursalId = event.target.value;
             if (sucursalId) {
@@ -87,7 +79,6 @@ async function cargarSucursales() {
                 cargarBarberosPorSucursal(sucursalId);
             } else {
                 sucursalSeleccionada = null;
-                // Limpiar barberos si no hay sucursal seleccionada
                 document.getElementById('barberos-selection').innerHTML = '<div class="col-12 text-center"><p class="text-muted">Por favor, selecciona una sucursal primero.</p></div>';
             }
         });
@@ -102,11 +93,10 @@ async function cargarSucursales() {
 async function cargarBarberosPorSucursal(sucursalId) {
     const container = document.getElementById('barberos-selection');
     container.innerHTML = '<div class="col-12 text-center"><div class="loading"></div><p>Cargando barberos...</p></div>';
-    barberoSeleccionado = null; // Reiniciar barbero seleccionado
+    barberoSeleccionado = null;
 
     try {
-        // Usamos el nuevo endpoint filtrado
-        const response = await fetch(`${API_BASE_URL}/barberos?sucursalId=${sucursalId}`);
+        const response = await fetch(`${API_BASE_URL}/barberos?sucursal_id=${sucursalId}`); // Usa snake_case
         if (!response.ok) throw new Error('Error al cargar barberos');
         
         barberos = await response.json();
@@ -117,7 +107,7 @@ async function cargarBarberosPorSucursal(sucursalId) {
     }
 }
 
-// Mostrar barberos para selección (La función es la misma, solo se llama desde otro lugar)
+// Mostrar barberos para selección
 function mostrarBarberos() {
     const container = document.getElementById('barberos-selection');
     
@@ -131,7 +121,7 @@ function mostrarBarberos() {
             <div class="barbero-selection">
                 ${barberos.map(barbero => `
                     <div class="barbero-option" onclick="seleccionarBarbero(event, ${barbero.id})">
-                        <img src="http://localhost:8081/${barbero.fotoUrl || 'images/default-barbero.jpg'}" 
+                        <img src="http://localhost:8081/${barbero.foto_url || 'images/default-barbero.jpg'}" 
                              alt="${barbero.nombre}" 
                              onerror="this.src='https://via.placeholder.com/80x80/cccccc/666666?text=👨‍💼'">
                         <h5>${barbero.nombre}</h5>
@@ -172,11 +162,7 @@ function configurarFormulario() {
     });
 }
 
-// ==================================================
-// VALIDACIÓN Y REGISTRO MODIFICADOS
-// ==================================================
-
-// Validar formulario (ahora incluye la sucursal)
+// Validar formulario
 function validarFormulario() {
     const nombre = document.getElementById('clienteNombre').value.trim();
     const telefono = document.getElementById('clienteTelefono').value.trim();
@@ -184,7 +170,6 @@ function validarFormulario() {
     const fecha = document.getElementById('fechaCita').value;
     const hora = document.getElementById('horaCita').value;
     
-    // Ahora la validación depende de que se haya seleccionado una sucursal
     const isValid = nombre && telefono && sucursal && fecha && hora && barberoSeleccionado;
     
     document.getElementById('btnConfirmar').disabled = !isValid;
@@ -192,7 +177,7 @@ function validarFormulario() {
     return isValid;
 }
 
-// Registrar cita (ahora incluye la sucursal en los datos)
+// Registrar cita
 async function registrarCita() {
     const btnConfirmar = document.getElementById('btnConfirmar');
     const originalText = btnConfirmar.innerHTML;
@@ -219,13 +204,12 @@ async function registrarCita() {
         const hora = document.getElementById('horaCita').value;
         const fechaHora = `${fecha}T${hora}:00`;
         
-        // Preparar datos de la cita, incluyendo la sucursal
         const citaData = {
-            fechaHora: fechaHora,
+            fecha_hora: fechaHora, // Usa snake_case
             cliente: { id: cliente.id },
             barbero: { id: barberoSeleccionado.id },
             servicio: { id: servicioSeleccionado ? servicioSeleccionado.id : 1 },
-            sucursal: { id: sucursalSeleccionada.id } // <-- Se añade la sucursal aquí
+            sucursal: { id: sucursalSeleccionada.id }
         };
         
         const citaResponse = await fetch(`${API_BASE_URL}/citas`, {
@@ -247,9 +231,9 @@ async function registrarCita() {
     }
 }
 
-// Mostrar modal de confirmación (ahora incluye la sucursal)
+// Mostrar modal de confirmación
 function mostrarConfirmacion(cita, cliente) {
-    const fecha = new Date(cita.fechaHora);
+    const fecha = new Date(cita.fecha_hora); // Usa snake_case
     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
@@ -290,7 +274,7 @@ function volverInicio() {
 }
 
 // --- El resto de las funciones de validación y errores se mantienen igual ---
-
+// (No se necesitan cambios aquí)
 function validarTelefono(telefono) {
     const regex = /^[\d\s\-\+\(\)]+$/;
     return regex.test(telefono) && telefono.length >= 10;
