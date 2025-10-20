@@ -1,6 +1,6 @@
 package com.elmapachebigoton.barberia_api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // <-- Asegúrate de que esta línea exista
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,17 +18,12 @@ public class Barbero {
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(name = "foto_url", nullable = false)
     private String fotoUrl;
 
-    /**
-     * Relación con Sucursal:
-     * Un barbero pertenece a una única sucursal.
-     * FetchType.LAZY: La sucursal solo se cargará de la base de datos cuando se acceda a ella explícitamente.
-     * JsonIgnoreProperties: Evita problemas de serialización en bucle al convertir a JSON.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Esta anotación es crucial para evitar el error de serialización del proxy
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_sucursal", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Sucursal sucursal;
 }

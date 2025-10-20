@@ -51,7 +51,7 @@ function mostrarBarberos(barberos) {
   container.innerHTML = barberos.map(barbero => `
     <div class="col-lg-4 col-md-6">
       <div class="barbero-card">
-        <div class="barbero-img" style="background-image: url('${API_BASE_URL.replace('/api','')}/${barbero.foto_url || ''}');">
+        <div class="barbero-img" style="background-image: url('http://localhost:8081/${barbero.fotoUrl || ''}');">
           <div class="barbero-overlay">
             <h3 class="barbero-name">${barbero.nombre}</h3>
           </div>
@@ -91,7 +91,7 @@ function mostrarServicios(servicios) {
   container.innerHTML = servicios.map(servicio => `
     <div class="col-lg-4 col-md-6">
       <div class="servicio-card">
-        <div class="servicio-img" style="background-image: url('${API_BASE_URL.replace('/api','')}/${servicio.foto_url || ''}');"></div>
+        <div class="servicio-img" style="background-image: url('http://localhost:8081/${servicio.fotoUrl || ''}');"></div>
         <div class="servicio-content">
           <h3 class="servicio-title">${servicio.descripcion}</h3>
           <p class="servicio-precio">$ ${servicio.costo}</p>
