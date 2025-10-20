@@ -17,9 +17,23 @@ public class BarberoController {
     @Autowired
     private BarberoRepository barberoRepository;
 
+    /**
+     * Endpoint modificado para obtener barberos.
+     * Puede filtrar por sucursal si se proporciona el parámetro 'sucursalId'.
+     * Si no se proporciona, devuelve todos los barberos.
+     *
+     * @param sucursalId Parámetro opcional para filtrar por el ID de la sucursal.
+     * @return Una lista de barberos.
+     */
     @GetMapping
-    public ResponseEntity<Iterable<Barbero>> findAll() {
-        return ResponseEntity.ok(barberoRepository.findAll());
+    public ResponseEntity<Iterable<Barbero>> findAll(@RequestParam Optional<Integer> sucursalId) {
+        if (sucursalId.isPresent()) {
+            // Si el ID de la sucursal está presente, usamos el nuevo método del repositorio
+            return ResponseEntity.ok(barberoRepository.findBySucursalId(sucursalId.get()));
+        } else {
+            // Si no, devolvemos todos los barberos como antes
+            return ResponseEntity.ok(barberoRepository.findAll());
+        }
     }
 
     @GetMapping("/{id}")
@@ -28,8 +42,12 @@ public class BarberoController {
         return barbero.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // --- Los métodos POST, PUT y DELETE se mantienen sin cambios ---
+
     @PostMapping
     public ResponseEntity<Barbero> create(@RequestBody Barbero barbero, UriComponentsBuilder uriBuilder) {
+        // Para crear un barbero, el JSON de entrada ahora debe incluir la sucursal.
+        // Ejemplo: { "nombre": "Juan", "fotoUrl": "...", "sucursal": { "id": 1 } }
         Barbero created = barberoRepository.save(barbero);
         URI uri = uriBuilder.path("/barberos/{id}").buildAndExpand(created.getId()).toUri();
         return ResponseEntity.created(uri).body(created);
@@ -54,4 +72,3 @@ public class BarberoController {
         return ResponseEntity.noContent().build();
     }
 }
-

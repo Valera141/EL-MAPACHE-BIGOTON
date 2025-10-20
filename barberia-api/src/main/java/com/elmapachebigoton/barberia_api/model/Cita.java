@@ -36,4 +36,15 @@ public class Cita {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Servicio servicio;
+    
+    /**
+     * Relación con Sucursal:
+     * Una cita pertenece a una única sucursal.
+     * FetchType.EAGER: La sucursal se cargará junto con la cita, ya que es un dato fundamental.
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_sucursal", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Sucursal sucursal;
 }

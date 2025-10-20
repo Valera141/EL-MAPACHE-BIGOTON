@@ -23,5 +23,5 @@ public class Servicio {
     private Double costo;
 
     @Column(nullable = false)
-    private String imagenUrl;
+    private String foto_url;
 }

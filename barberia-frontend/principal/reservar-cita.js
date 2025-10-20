@@ -3,6 +3,7 @@ const API_BASE_URL = 'http://localhost:8081/api';
 
 // Variables globales
 let servicioSeleccionado = null;
+let sucursalSeleccionada = null; // <-- Nueva variable global
 let barberoSeleccionado = null;
 let barberos = [];
 
@@ -16,7 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarServicioSeleccionado(servicioId);
     }
     
-    cargarBarberos();
+    // 1. Cargar sucursales al iniciar
+    cargarSucursales(); 
+    
     configurarFechaMinima();
     configurarFormulario();
 });
@@ -42,7 +45,6 @@ async function cargarServicioSeleccionado(servicioId) {
         mostrarServicioSeleccionado();
     } catch (error) {
         console.error('Error:', error);
-        // Si hay error, ocultar la sección del servicio
         document.getElementById('servicio-info').style.display = 'none';
     }
 }
@@ -56,27 +58,71 @@ function mostrarServicioSeleccionado() {
     document.getElementById('servicio-info').style.display = 'block';
 }
 
-// Cargar barberos disponibles
-async function cargarBarberos() {
+// ==================================================
+// NUEVAS FUNCIONES PARA MANEJAR SUCURSALES
+// ==================================================
+
+// Cargar sucursales disponibles
+async function cargarSucursales() {
+    const select = document.getElementById('sucursalSelect');
     try {
-        const response = await fetch(`${API_BASE_URL}/barberos`);
+        const response = await fetch(`${API_BASE_URL}/sucursales`);
+        if (!response.ok) throw new Error('Error al cargar sucursales');
+        
+        const sucursales = await response.json();
+        
+        select.innerHTML = '<option value="">Seleccionar sucursal</option>'; // Opción por defecto
+        sucursales.forEach(sucursal => {
+            const option = document.createElement('option');
+            option.value = sucursal.id;
+            option.textContent = sucursal.nombre;
+            select.appendChild(option);
+        });
+
+        // Añadir evento para cuando el usuario cambia de sucursal
+        select.addEventListener('change', (event) => {
+            const sucursalId = event.target.value;
+            if (sucursalId) {
+                sucursalSeleccionada = sucursales.find(s => s.id == sucursalId);
+                cargarBarberosPorSucursal(sucursalId);
+            } else {
+                sucursalSeleccionada = null;
+                // Limpiar barberos si no hay sucursal seleccionada
+                document.getElementById('barberos-selection').innerHTML = '<div class="col-12 text-center"><p class="text-muted">Por favor, selecciona una sucursal primero.</p></div>';
+            }
+        });
+
+    } catch (error) {
+        console.error('Error:', error);
+        select.innerHTML = '<option value="">Error al cargar sucursales</option>';
+    }
+}
+
+// Cargar barberos disponibles según la sucursal
+async function cargarBarberosPorSucursal(sucursalId) {
+    const container = document.getElementById('barberos-selection');
+    container.innerHTML = '<div class="col-12 text-center"><div class="loading"></div><p>Cargando barberos...</p></div>';
+    barberoSeleccionado = null; // Reiniciar barbero seleccionado
+
+    try {
+        // Usamos el nuevo endpoint filtrado
+        const response = await fetch(`${API_BASE_URL}/barberos?sucursalId=${sucursalId}`);
         if (!response.ok) throw new Error('Error al cargar barberos');
         
         barberos = await response.json();
         mostrarBarberos();
     } catch (error) {
         console.error('Error:', error);
-        document.getElementById('barberos-selection').innerHTML = 
-            '<div class="col-12 text-center"><p class="text-danger">Error al cargar barberos</p></div>';
+        container.innerHTML = '<div class="col-12 text-center"><p class="text-danger">Error al cargar barberos</p></div>';
     }
 }
 
-// Mostrar barberos para selección
+// Mostrar barberos para selección (La función es la misma, solo se llama desde otro lugar)
 function mostrarBarberos() {
     const container = document.getElementById('barberos-selection');
     
     if (barberos.length === 0) {
-        container.innerHTML = '<div class="col-12 text-center"><p>No hay barberos disponibles</p></div>';
+        container.innerHTML = '<div class="col-12 text-center"><p>No hay barberos disponibles para esta sucursal.</p></div>';
         return;
     }
     
@@ -84,12 +130,12 @@ function mostrarBarberos() {
         <div class="col-12">
             <div class="barbero-selection">
                 ${barberos.map(barbero => `
-                    <div class="barbero-option" onclick="seleccionarBarbero(${barbero.id})">
-                        <img src="http://localhost:8080/${barbero.fotoUrl || 'images/default-barbero.jpg'}" 
+                    <div class="barbero-option" onclick="seleccionarBarbero(event, ${barbero.id})">
+                        <img src="http://localhost:8081/${barbero.fotoUrl || 'images/default-barbero.jpg'}" 
                              alt="${barbero.nombre}" 
                              onerror="this.src='https://via.placeholder.com/80x80/cccccc/666666?text=👨‍💼'">
                         <h5>${barbero.nombre}</h5>
-                        <p>Barbero profesional</p>
+                        <p>${barbero.especialidad || 'Barbero profesional'}</p>
                         <input type="radio" name="barbero" value="${barbero.id}" id="barbero-${barbero.id}">
                     </div>
                 `).join('')}
@@ -99,37 +145,25 @@ function mostrarBarberos() {
 }
 
 // Seleccionar barbero
-function seleccionarBarbero(barberoId) {
-    // Remover selección anterior
+function seleccionarBarbero(event, barberoId) {
     document.querySelectorAll('.barbero-option').forEach(option => {
         option.classList.remove('selected');
     });
-    
-    // Agregar selección al barbero clickeado
     event.currentTarget.classList.add('selected');
-    
-    // Marcar el radio button
     document.getElementById(`barbero-${barberoId}`).checked = true;
-    
-    // Guardar barbero seleccionado
     barberoSeleccionado = barberos.find(b => b.id === barberoId);
-    
-    // Validar formulario
     validarFormulario();
 }
 
 // Configurar eventos del formulario
 function configurarFormulario() {
     const form = document.getElementById('citaForm');
-    
-    // Validación en tiempo real
     const inputs = form.querySelectorAll('input, select');
     inputs.forEach(input => {
         input.addEventListener('input', validarFormulario);
         input.addEventListener('change', validarFormulario);
     });
     
-    // Envío del formulario
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (validarFormulario()) {
@@ -138,102 +172,94 @@ function configurarFormulario() {
     });
 }
 
-// Validar formulario
+// ==================================================
+// VALIDACIÓN Y REGISTRO MODIFICADOS
+// ==================================================
+
+// Validar formulario (ahora incluye la sucursal)
 function validarFormulario() {
     const nombre = document.getElementById('clienteNombre').value.trim();
     const telefono = document.getElementById('clienteTelefono').value.trim();
+    const sucursal = document.getElementById('sucursalSelect').value;
     const fecha = document.getElementById('fechaCita').value;
     const hora = document.getElementById('horaCita').value;
     
-    const isValid = nombre && telefono && fecha && hora && barberoSeleccionado;
+    // Ahora la validación depende de que se haya seleccionado una sucursal
+    const isValid = nombre && telefono && sucursal && fecha && hora && barberoSeleccionado;
     
     document.getElementById('btnConfirmar').disabled = !isValid;
     
     return isValid;
 }
 
-// Registrar cita
+// Registrar cita (ahora incluye la sucursal en los datos)
 async function registrarCita() {
     const btnConfirmar = document.getElementById('btnConfirmar');
     const originalText = btnConfirmar.innerHTML;
     
     try {
-        // Mostrar loading
         btnConfirmar.disabled = true;
         btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
         
-        // Preparar datos del cliente
         const clienteData = {
             nombre: document.getElementById('clienteNombre').value.trim(),
             telefono: document.getElementById('clienteTelefono').value.trim()
         };
         
-        // Registrar cliente primero
         const clienteResponse = await fetch(`${API_BASE_URL}/clientes`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(clienteData)
         });
         
         if (!clienteResponse.ok) throw new Error('Error al registrar cliente');
         const cliente = await clienteResponse.json();
         
-        // Preparar fecha y hora
         const fecha = document.getElementById('fechaCita').value;
         const hora = document.getElementById('horaCita').value;
         const fechaHora = `${fecha}T${hora}:00`;
         
-        // Preparar datos de la cita
+        // Preparar datos de la cita, incluyendo la sucursal
         const citaData = {
             fechaHora: fechaHora,
             cliente: { id: cliente.id },
             barbero: { id: barberoSeleccionado.id },
-            servicio: { id: servicioSeleccionado ? servicioSeleccionado.id : 1 } // Default servicio si no hay seleccionado
+            servicio: { id: servicioSeleccionado ? servicioSeleccionado.id : 1 },
+            sucursal: { id: sucursalSeleccionada.id } // <-- Se añade la sucursal aquí
         };
         
-        // Registrar cita
         const citaResponse = await fetch(`${API_BASE_URL}/citas`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(citaData)
         });
         
         if (!citaResponse.ok) throw new Error('Error al registrar cita');
         const cita = await citaResponse.json();
         
-        // Mostrar confirmación
         mostrarConfirmacion(cita, cliente);
         
     } catch (error) {
         console.error('Error:', error);
         alert('Error al registrar la cita. Por favor, intente nuevamente.');
-        
-        // Restaurar botón
         btnConfirmar.disabled = false;
         btnConfirmar.innerHTML = originalText;
     }
 }
 
-// Mostrar modal de confirmación
+// Mostrar modal de confirmación (ahora incluye la sucursal)
 function mostrarConfirmacion(cita, cliente) {
     const fecha = new Date(cita.fechaHora);
     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
     const horaFormateada = fecha.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
+        hour: '2-digit', minute: '2-digit'
     });
     
     const detalles = `
         <div class="cita-confirmada">
+            <p><strong>Sucursal:</strong> ${sucursalSeleccionada.nombre}</p>
             <p><strong>Cliente:</strong> ${cliente.nombre}</p>
             <p><strong>Teléfono:</strong> ${cliente.telefono}</p>
             <p><strong>Barbero:</strong> ${barberoSeleccionado.nombre}</p>
@@ -246,8 +272,7 @@ function mostrarConfirmacion(cita, cliente) {
     document.getElementById('detallesCita').innerHTML = detalles;
     
     const modal = new bootstrap.Modal(document.getElementById('confirmacionModal'), {
-        backdrop: 'static',
-        keyboard: false
+        backdrop: 'static', keyboard: false
     });
     modal.show();
 }
@@ -264,12 +289,8 @@ function volverInicio() {
     window.location.href = 'index.html';
 }
 
-// Función para iniciar sesión (placeholder)
-function iniciarSesion() {
-    alert('Funcionalidad de inicio de sesión - Próximamente disponible');
-}
+// --- El resto de las funciones de validación y errores se mantienen igual ---
 
-// Validaciones adicionales
 function validarTelefono(telefono) {
     const regex = /^[\d\s\-\+\(\)]+$/;
     return regex.test(telefono) && telefono.length >= 10;
@@ -279,7 +300,6 @@ function validarNombre(nombre) {
     return nombre.length >= 2 && /^[a-zA-ZÀ-ÿ\s]+$/.test(nombre);
 }
 
-// Eventos adicionales para validación en tiempo real
 document.addEventListener('DOMContentLoaded', function() {
     const nombreInput = document.getElementById('clienteNombre');
     const telefonoInput = document.getElementById('clienteTelefono');
@@ -309,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Funciones para mostrar/ocultar errores
 function mostrarError(elemento, mensaje) {
     let errorDiv = elemento.parentNode.querySelector('.error-message');
     if (!errorDiv) {

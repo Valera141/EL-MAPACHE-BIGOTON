@@ -5,6 +5,7 @@ import com.elmapachebigoton.barberia_api.repository.CitaRepository;
 import com.elmapachebigoton.barberia_api.repository.ClienteRepository;
 import com.elmapachebigoton.barberia_api.repository.BarberoRepository;
 import com.elmapachebigoton.barberia_api.repository.ServicioRepository;
+import com.elmapachebigoton.barberia_api.repository.SucursalRepository; // 1. Importa el nuevo repositorio
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,9 @@ public class CitaController {
     @Autowired
     private ServicioRepository servicioRepository;
 
+    @Autowired
+    private SucursalRepository sucursalRepository; // 2. Inyecta el repositorio
+
     @GetMapping
     public ResponseEntity<Iterable<Cita>> findAll() {
         return ResponseEntity.ok(citaRepository.findAll());
@@ -40,11 +44,17 @@ public class CitaController {
         return cita.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Endpoint modificado para crear una cita.
+     * Ahora valida que la sucursal proporcionada exista.
+     */
     @PostMapping
     public ResponseEntity<Cita> create(@RequestBody Cita cita, UriComponentsBuilder uriBuilder) {
+        // 3. Añade la validación para la sucursal
         if (!clienteRepository.findById(cita.getCliente().getId()).isPresent()
                 || !barberoRepository.findById(cita.getBarbero().getId()).isPresent()
-                || !servicioRepository.findById(cita.getServicio().getId()).isPresent()) {
+                || !servicioRepository.findById(cita.getServicio().getId()).isPresent()
+                || !sucursalRepository.findById(cita.getSucursal().getId()).isPresent()) { // <-- ¡Nueva validación aquí!
             return ResponseEntity.unprocessableEntity().build();
         }
 
@@ -55,10 +65,12 @@ public class CitaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Integer id, @RequestBody Cita cita) {
+        // También es buena práctica añadir la validación aquí
         if (!citaRepository.findById(id).isPresent()
                 || !clienteRepository.findById(cita.getCliente().getId()).isPresent()
                 || !barberoRepository.findById(cita.getBarbero().getId()).isPresent()
-                || !servicioRepository.findById(cita.getServicio().getId()).isPresent()) {
+                || !servicioRepository.findById(cita.getServicio().getId()).isPresent()
+                || !sucursalRepository.findById(cita.getSucursal().getId()).isPresent()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
