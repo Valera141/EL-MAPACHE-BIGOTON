@@ -1,6 +1,6 @@
 package com.elmapachebigoton.barberia_api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // <-- Asegúrate de que esta línea exista
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // 1. Importa esta clase
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,10 +19,10 @@ public class Barbero {
     private String nombre;
 
     @Column(name = "foto_url", nullable = false)
-    private String fotoUrl;
+    private String foto_url;
 
-    // Esta anotación es crucial para evitar el error de serialización del proxy
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
+    // 2. Esta anotación soluciona el error de serialización
+    @JsonIgnoreProperties({"hibernateEagerInitializer", "handler"})
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_sucursal", nullable = false)
     private Sucursal sucursal;
