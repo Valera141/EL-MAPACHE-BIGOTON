@@ -19,19 +19,23 @@ public class Cita {
     @Column(nullable = false)
     private LocalDateTime fechaHora;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    // --- CAMBIOS AQUÍ ---
+    // Se eliminó (fetch = FetchType.EAGER)
+    @ManyToOne 
     @JoinColumn(name="id_cliente", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Cliente cliente;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    // Se eliminó (fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name="id_barbero", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Barbero barbero;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    // Se eliminó (fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name="id_servicio", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -42,7 +46,8 @@ public class Cita {
      * Una cita pertenece a una única sucursal.
      * FetchType.EAGER: La sucursal se cargará junto con la cita, ya que es un dato fundamental.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    // Se eliminó (fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_sucursal", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

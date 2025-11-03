@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Citas Registradas - El Mapache Bigotón</title>
-  
+
   <!-- Bootstrap local -->
   <link href="../css/bootstrap.min.css" rel="stylesheet">
-  
+
   <!-- Font Awesome y Google Fonts -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Estilos propios -->
   <link href="style.css" rel="stylesheet">
   <link href="citas-registradas.css" rel="stylesheet">
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -34,6 +36,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="index.html#servicios">Servicios</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="sucursales.html">Sucursales</a>
           </li>
         </ul>
         <button class="btn btn-login" onclick="verCitasRegistradas()">
@@ -79,7 +84,8 @@
           <div class="col-md-3">
             <div class="form-group">
               <label for="filtroCliente">Buscar cliente:</label>
-              <input type="text" class="form-control" id="filtroCliente" placeholder="Nombre del cliente" onkeyup="aplicarFiltros()">
+              <input type="text" class="form-control" id="filtroCliente" placeholder="Nombre del cliente"
+                onkeyup="aplicarFiltros()">
             </div>
           </div>
           <div class="col-md-3">
@@ -164,18 +170,18 @@
           <div class="table-responsive">
             <table class="table table-hover">
               <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Teléfono</th>
-                  <th>Barbero</th>
-                  <th>Servicio</th>
-                  <th>Fecha</th>
-                  <th>Hora</th>
-                  <th>Costo</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Teléfono</th>
+                                    <th>Barbero</th>
+                                    <th>Sucursal</th>                   <th>Servicio</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Costo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                  </tr>
+                              </thead>
               <tbody id="citas-tabla-body">
                 <tr>
                   <td colspan="9" class="text-center">
@@ -257,4 +263,5 @@
   <script src="../js/bootstrap.bundle.min.js"></script>
   <script src="citas-registradas.js"></script>
 </body>
+
 </html>

@@ -191,14 +191,17 @@ async function registrarCita() {
             telefono: document.getElementById('clienteTelefono').value.trim()
         };
         
-        const clienteResponse = await fetch(`${API_BASE_URL}/clientes`, {
+        // --- CAMBIO AQUÍ ---
+        // 1. Usamos el nuevo endpoint "findOrCreate"
+        const clienteResponse = await fetch(`${API_BASE_URL}/clientes/findOrCreate`, { // <-- URL actualizada
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(clienteData)
         });
         
-        if (!clienteResponse.ok) throw new Error('Error al registrar cliente');
+        if (!clienteResponse.ok) throw new Error('Error al registrar o encontrar cliente');
         const cliente = await clienteResponse.json();
+        // --- FIN DEL CAMBIO ---
         
         const fecha = document.getElementById('fechaCita').value;
         const hora = document.getElementById('horaCita').value;

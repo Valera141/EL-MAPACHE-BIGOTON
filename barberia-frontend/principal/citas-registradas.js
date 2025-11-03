@@ -71,9 +71,9 @@ async function cargarCitas() {
         if (todasLasCitas.length > 0) {
             console.log('=== DEBUG FECHAS ===');
             console.log('Dato crudo de API:', todasLasCitas[0]);
-            console.log('fechaHora original:', todasLasCitas[0].fechaHora);
-            console.log('Tipo de dato:', typeof todasLasCitas[0].fechaHora);
-            const fechaParseada = parsearFecha(todasLasCitas[0].fechaHora);
+            console.log('fecha_hora original:', todasLasCitas[0].fecha_hora); // <-- CAMBIO AQUÍ
+            console.log('Tipo de dato:', typeof todasLasCitas[0].fecha_hora); // <-- CAMBIO AQUÍ
+            const fechaParseada = parsearFecha(todasLasCitas[0].fecha_hora); // <-- CAMBIO AQUÍ
             console.log('Fecha parseada:', fechaParseada);
             console.log('toString:', fechaParseada.toString());
             console.log('toISOString:', fechaParseada.toISOString());
@@ -83,7 +83,7 @@ async function cargarCitas() {
         citasFiltradas = [...todasLasCitas];
         
         // Ordenar por fecha (más recientes primero)
-        citasFiltradas.sort((a, b) => parsearFecha(b.fechaHora) - parsearFecha(a.fechaHora));
+        citasFiltradas.sort((a, b) => parsearFecha(b.fecha_hora) - parsearFecha(a.fecha_hora)); // <-- CAMBIO AQUÍ
         
         mostrarCitas();
     } catch (error) {
@@ -139,7 +139,7 @@ function mostrarCitasTabla() {
     const tbody = document.getElementById('citas-tabla-body');
     
     tbody.innerHTML = citasFiltradas.map(cita => {
-        const fecha = parsearFecha(cita.fechaHora);
+        const fecha = parsearFecha(cita.fecha_hora); // <-- CAMBIO AQUÍ
         const fechaFormateada = fecha.toLocaleDateString('es-ES');
         const horaFormateada = fecha.toLocaleTimeString('es-ES', {
             hour: '2-digit',
@@ -155,6 +155,7 @@ function mostrarCitasTabla() {
                 </td>
                 <td>${cita.cliente.telefono}</td>
                 <td>${cita.barbero.nombre}</td>
+                <td>${cita.sucursal.nombre}</td>
                 <td>${cita.servicio.descripcion}</td>
                 <td>${fechaFormateada}</td>
                 <td>${horaFormateada}</td>
@@ -180,7 +181,7 @@ function mostrarCitasTarjetas() {
     const container = document.getElementById('citas-tarjetas-container');
     
     container.innerHTML = citasFiltradas.map(cita => {
-        const fecha = parsearFecha(cita.fechaHora);
+        const fecha = parsearFecha(cita.fecha_hora); // <-- CAMBIO AQUÍ
         const fechaFormateada = fecha.toLocaleDateString('es-ES', {
             weekday: 'long',
             year: 'numeric',
@@ -210,6 +211,10 @@ function mostrarCitasTarjetas() {
                             <i class="fas fa-cut"></i>
                             <span>${cita.barbero.nombre}</span>
                         </div>
+                        <div class="cita-card-body">
+                        <div class="info-item"><i class="fas fa-store"></i> 
+                            <span>${cita.sucursal.nombre}</span>
+                        </div>
                         <div class="info-item">
                             <i class="fas fa-scissors"></i>
                             <span>${cita.servicio.descripcion}</span>
@@ -261,7 +266,7 @@ function calcularEstadisticas() {
     hoy.setHours(0, 0, 0, 0);
     
     const citasHoy = todasLasCitas.filter(cita => {
-        const fechaCita = parsearFecha(cita.fechaHora);
+        const fechaCita = parsearFecha(cita.fecha_hora); // <-- CAMBIO AQUÍ
         fechaCita.setHours(0, 0, 0, 0);
         return fechaCita.getTime() === hoy.getTime();
     });
@@ -291,7 +296,7 @@ function aplicarFiltros() {
     const filtroCliente = document.getElementById('filtroCliente').value.toLowerCase();
     
     citasFiltradas = todasLasCitas.filter(cita => {
-        const fechaCita = parsearFecha(cita.fechaHora).toISOString().split('T')[0];
+        const fechaCita = parsearFecha(cita.fecha_hora).toISOString().split('T')[0]; // <-- CAMBIO AQUÍ
         
         const cumpleFecha = !filtroFecha || fechaCita === filtroFecha;
         const cumpleBarbero = !filtroBarbero || cita.barbero.id.toString() === filtroBarbero;
@@ -348,7 +353,7 @@ async function verDetallesCita(citaId) {
 
 // Mostrar modal con detalles
 function mostrarModalDetalles(cita) {
-    const fecha = parsearFecha(cita.fechaHora);
+    const fecha = parsearFecha(cita.fecha_hora); // <-- CAMBIO AQUÍ
     const fechaFormateada = fecha.toLocaleDateString('es-ES', {
         weekday: 'long',
         year: 'numeric',
@@ -412,7 +417,7 @@ function confirmarEliminarCita(citaId) {
     
     citaAEliminarId = citaId;
     
-    const fecha = parsearFecha(cita.fechaHora);
+    const fecha = parsearFecha(cita.fecha_hora); // <-- CAMBIO AQUÍ
     const fechaFormateada = fecha.toLocaleDateString('es-ES');
     const horaFormateada = fecha.toLocaleTimeString('es-ES', {
         hour: '2-digit',

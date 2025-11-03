@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reservar Cita - El Mapache Bigotón</title>
-  
+
   <link href="../css/bootstrap.min.css" rel="stylesheet">
-  
+
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  
+
   <link href="style.css" rel="stylesheet">
   <link href="reservar-cita.css" rel="stylesheet">
 </head>
+
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container">
@@ -31,6 +33,9 @@
           <li class="nav-item">
             <a class="nav-link" href="index.html#servicios">Servicios</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="sucursales.html">Sucursales</a>
+          </li>
         </ul>
         <button class="btn btn-login" onclick="verCitasRegistradas()">
           <i class="fas fa-calendar-check"></i> Citas Registradas
@@ -48,7 +53,7 @@
               <h2><i class="fas fa-calendar-plus"></i> Reservar Cita</h2>
               <p>Complete el formulario para reservar su cita</p>
             </div>
-            
+
             <div id="servicio-info" class="servicio-selected" style="display: none;">
               <h5>Servicio seleccionado:</h5>
               <div class="servicio-details">
@@ -171,4 +176,5 @@
   <script src="../js/bootstrap.bundle.min.js"></script>
   <script src="reservar-cita.js"></script>
 </body>
+
 </html>

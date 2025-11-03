@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Sucursales - El Mapache Bigotón</title>
+    
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link href="style.css" rel="stylesheet">
+    <link href="reservar-cita.css" rel="stylesheet"> <link href="sucursales.css" rel="stylesheet"> </head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="fas fa-cut"></i>El Mapache Bigotón</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#principal">Principal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#barberos">Barberos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#servicios">Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="sucursales.html">Sucursales</a>
+                    </li>
+                </ul>
+                <button class="btn btn-login" onclick="window.location.href='citas-registradas.html'">
+                    <i class="fas fa-calendar-check"></i> Citas Registradas
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="cita-form-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-container">
+                        <h2 class="form-title">
+                            <i class="fas fa-store"></i>
+                            Registrar Nueva Sucursal
+                        </h2>
+                        <form id="sucursalForm">
+                            <div class="mb-3">
+                                <label for="nombreSucursal" class="form-label">Nombre de la Sucursal</label>
+                                <input type="text" class="form-control" id="nombreSucursal" placeholder="Ej: Sucursal Centro" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="direccionSucursal" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccionSucursal" placeholder="Ej: Av. Principal 123, Col. Centro" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="btnGuardar">
+                                <i class="fas fa-save"></i> Guardar Sucursal
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="list-container">
+                        <h2 class="form-title">
+                            <i class="fas fa-list-ul"></i>
+                            Sucursales Existentes
+                        </h2>
+                        <div id="listaSucursales" class="sucursales-list">
+                            <div class="text-center">
+                                <div class="loading"></div>
+                                <p>Cargando sucursales...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script src="sucursales.js"></script> </body>
+</html>
